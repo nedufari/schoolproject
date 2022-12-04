@@ -5,12 +5,7 @@ import { GetUser } from '../auth/passport/jwtDecorator';
 import { JwtGuard } from '../auth/passport/jwtGuard';
 import { User } from '../entities/user.entity';
 import { UserService } from './user.service';
-import {
-  CreateUserDto,
-  HospitalCreateDto,
-  LaboratoryCreateDto,
-  PharmacyCreateDto,
-} from './userdto';
+import { CreateUserDto } from './userdto';
 
 @Controller('user')
 export class UserController {
