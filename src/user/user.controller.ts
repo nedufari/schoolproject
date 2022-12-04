@@ -5,23 +5,25 @@ import { GetUser } from '../auth/passport/jwtDecorator';
 import { JwtGuard } from '../auth/passport/jwtGuard';
 import { User } from '../entities/user.entity';
 import { UserService } from './user.service';
-import { CreateUserDto, HospitalCreateDto, LaboratoryCreateDto, PharmacyCreateDto } from './userdto';
-
+import {
+  CreateUserDto,
+  HospitalCreateDto,
+  LaboratoryCreateDto,
+  PharmacyCreateDto,
+} from './userdto';
 
 @Controller('user')
 export class UserController {
-    constructor(private userservice:UserService){}
+  constructor(private userservice: UserService) {}
 
+  @UseGuards(JwtGuard)
+  @Get('me')
+  me(@GetUser() user: User) {
+    return user;
+  }
 
-    @UseGuards(JwtGuard)
-    @Get('me')
-    me (@GetUser()user:User,){
-        return user
-    }
-
-    @Post('signup')
-    async Signup(@Body()signupdto:CreateUserDto,hopsitaldto:HospitalCreateDto, labdto:LaboratoryCreateDto,pharmadto:PharmacyCreateDto){
-        return await this.userservice.Signup(signupdto,hopsitaldto,labdto,pharmadto)
-    }
-   
+  @Post('signup')
+  async Signup(@Body() signupdto: CreateUserDto) {
+    return await this.userservice.Signup(signupdto);
+  }
 }
