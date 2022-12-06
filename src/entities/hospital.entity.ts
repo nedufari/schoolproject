@@ -8,7 +8,7 @@ export class Hospital extends SharedEndtity{
     hospital_name:string
 
     @Column()
-    location:string
+    state:string
 
     @Column()
     country:string

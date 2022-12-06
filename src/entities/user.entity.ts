@@ -28,43 +28,39 @@ export class User extends SharedEndtity{
     @Column({unique:true})
     password:string
 
-    @Column()
-    vendor?:vendorName
+    @Column({type:'enum',enum:vendorName, nullable:true})
+    vendor:vendorName
 
-   
-
-
-
-    @Column()
+    @Column({nullable:true})
     firstName: string
 
-    @Column()
+    @Column({nullable:true})
     middleName: string
 
-    @Column()
+    @Column({nullable:true})
     lastName: string
 
-    @Column()
+    @Column({nullable:true})
     address:string
 
-    @Column()
+    @Column({nullable:true})
     country:string
 
-  
 
-    @Column()
+    @Column({nullable:true})
     gender:string
 
-    @Column()
+    @Column({nullable:true})
     stateOfResidence:string
 
-   
 
-    @Column()
+    @Column({nullable:true})
     medical_history:string
 
     
    @Column({ type: 'enum', enum: userRole, default: userRole.PATIENT, nullable: true })
     role:userRole;
+
+   
 
 }

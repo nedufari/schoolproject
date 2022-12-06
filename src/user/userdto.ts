@@ -3,42 +3,18 @@
 
     import { OmitType, PartialType } from "@nestjs/swagger";
     import { Transform } from "class-transformer";
-    import { IsBoolean, IsEmail, isEmail, IsNotEmpty, IsString, IsUUID, Matches, MinLength } from "class-validator";
+    import { IsBoolean, IsEmail, isEmail, IsNotEmpty, IsString, IsUUID, Matches, MinLength, ValidateIf } from "class-validator";
     import Email from "rckg-shared-library/lib/notification/email/email";
+import { userRole, vendorName } from "../entities/user.entity";
     
         //create new user 
     
-        export class CreateUserDto{
-            @IsEmail()
-            @IsNotEmpty()
-            @Matches(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-            {message:'invalid email'})
-            @Transform(({value})=>value.toLowerCase())
-            email:string
-    
-    
-            @IsNotEmpty()
-            @IsString()
-            @MinLength(8)
-            @Matches(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/, {
-                message: 'Password too weak, please try another',
-              })
-            password:string
-
-            @IsString()
-            vendor:string
-
-            @IsString()
-            role:string
-        }
+ 
     
     
         //Updateuserdto
     
-        export class Updateuserdto extends PartialType(
-            OmitType(CreateUserDto,['email']as const)
-    
-        ){}
+        
                            
           // for the user response 
           export class UserResponseDto {
@@ -48,6 +24,9 @@
             @IsString()
             @IsEmail()
             email: string;
+
+            @IsString()
+            role:string
           
           }
     
@@ -298,10 +277,211 @@
           @IsNotEmpty()
           testimonies:string
       
-          
-          
-      
       }
+
+
+      export class CreateUserDto{
+        @IsEmail()
+        @IsNotEmpty()
+        @Matches(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+        {message:'invalid email'})
+        @Transform(({value})=>value.toLowerCase())
+        email:string
+
+
+        @IsNotEmpty()
+        @IsString()
+        @MinLength(8)
+        @Matches(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/, {
+            message: 'Password too weak, please try another',
+          })
+        password:string
+
+        @IsString()
+        @IsNotEmpty()
+        vendor:vendorName
+
+        @IsNotEmpty()
+        @IsString()
+        role:userRole
+
+        @ValidateIf(
+          (o) => o.role === userRole.VENDOR && o.vendor === vendorName.HOSPITALL,
+        )
+        @IsNotEmpty()
+        @IsString()
+        hopsitaldto: HospitalCreateDto;
+      
+        @ValidateIf(
+          (o) => o.role === userRole.VENDOR && o.vendor === vendorName.LABORATORY,
+        )
+        @IsNotEmpty()
+        @IsString()
+        labdto: LaboratoryCreateDto;
+      
+        @ValidateIf(
+          (o) => o.role === userRole.VENDOR && o.vendor === vendorName.PHHARMACY,
+        )
+        @IsNotEmpty()
+        @IsString()
+        pharmadto: PharmacyCreateDto;
+    }
+
+    export class HospitalUpdateDto{
+
+      @IsString()
+      hospital_name:string
+  
+      @IsString()
+      location:string
+  
+  
+      @IsString()
+      country:string
+  
+      @IsString()
+      website:string
+
+      @IsEmail()
+      @Matches(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      {message:'invalid email'})
+      @Transform(({value})=>value.toLowerCase())
+      email:string
+  
+     
+  
+      @IsString()
+      RC_number:string
+
+    
+      @IsString()
+      @MinLength(8)
+      @Matches(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/, {
+          message: 'Password too weak, please try another',
+        })
+      password:string
+  
+  
+      @IsString()
+      phone1:string
+  
+      @IsString()
+      phone2:string
+  
+      @IsString()
+      bio:string
+  
+      @IsString()
+      specializations:string
+  
+      @IsString()
+      testimonies:string
+    
+    }
+
+
+    //pharmarcy update dto
+
+    export class PharmacyUpdateDto{
+
+      @IsString()
+      pharmacy_name:string
+  
+      @IsString()
+      location:string
+  
+  
+      @IsString()
+      country:string
+  
+      @IsString()
+      website:string
+  
+      @IsEmail()
+      email:string
+  
+      @IsString()
+      RC_number:string
+
+
+      @IsString()
+      @MinLength(8)
+      @Matches(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/, {
+          message: 'Password too weak, please try another',
+        })
+      password:string
+  
+  
+  
+      @IsString()
+      phone1:string
+  
+      @IsString()
+      phone2:string
+  
+      @IsString()
+      bio:string
+
+      @IsString()
+      state:string
+  
+      @IsString()
+      breakthrough:string
+  
+      @IsString()
+      testimonies:string
+  
+  }
+
+  //dto for laboratory update 
+
+  export class LaboratoryUpdateDto{
+
+    @IsString()
+    laboratory_name:string
+
+   
+    @IsString()
+    location:string
+
+
+    @IsString()
+    country:string
+
+    @IsEmail()
+    email:string
+
+
+    @IsString()
+    @MinLength(8)
+    @Matches(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/, {
+        message: 'Password too weak, please try another',
+      })
+    password:string
+
+    @IsString()
+    website:string
+
+    @IsString()
+    state:string
+
+
+
+    @IsString()
+    phone1:string
+
+    @IsString()
+    phone2:string
+
+
+    @IsString()
+    RC_number:string    
+
+
+    @IsString()
+    bio:string      
+
+}
     
     
     
