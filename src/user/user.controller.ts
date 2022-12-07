@@ -9,12 +9,19 @@ import { JwtGuard } from '../auth/passport/jwtGuard';
 import { Roles } from '../auth/passport/role.decorator';
 import { User, userRole } from '../entities/user.entity';
 import { UserService } from './user.service';
+
 import { CreateUserDto, HospitalCreateDto, HospitalUpdateDto, LaboratoryCreateDto, LaboratoryUpdateDto, PharmacyCreateDto } from './userdto';
+
+
+
+
 
 
 @Controller('user')
 export class UserController {
-    constructor(private userservice:UserService){}
+  constructor(private userservice: UserService) {}
+
+ 
 
 
     @UseGuards(JwtGuard)
@@ -210,4 +217,7 @@ async updateLab(@GetUser()userid:string,@Param('id')id:string, @Body()labupdated
 
 
    
+
+    
+
 }

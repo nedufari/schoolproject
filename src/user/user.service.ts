@@ -1,4 +1,11 @@
-import { forwardRef, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RckgAppResponse } from 'rckg-shared-library';
 import { Repository } from 'typeorm';
@@ -7,74 +14,80 @@ import { CreateNewUserDto, LoginDto } from '../auth/authdto';
 import { Hospital } from '../entities/hospital.entity';
 import { Laboratory } from '../entities/laboratory.entity';
 import { Pharmacy } from '../entities/pharmacy.entity';
-import { User,userRole,vendorName } from '../entities/user.entity';
+import { User, userRole, vendorName } from '../entities/user.entity';
 import { TokenService } from './token.service';
+
 import { CreateUserDto, CurrentUserResponseDto, HospitalCreateDto, HospitalUpdateDto, LaboratoryCreateDto, LaboratoryUpdateDto, PharmacyCreateDto, PharmacyUpdateDto, UserResponseDto } from './userdto'
+
+
+
+
+
 import { UserRepository } from './userRepository';
 
 @Injectable()
 export class UserService {
-    constructor ( 
-        @InjectRepository(User)private readonly userepository:Repository<User>,
-        @InjectRepository(Hospital)private readonly hospitalrepository:Repository<Hospital>,
-        @InjectRepository(Pharmacy)private readonly pharmacyrepository:Repository<Pharmacy>,
-        @InjectRepository(Laboratory)private readonly laboratoryrepository:Repository<Laboratory>,
-        private tokenservice:TokenService
-        )
-        {
+  constructor(
+    @InjectRepository(User) private readonly userepository: Repository<User>,
+    @InjectRepository(Hospital)
+    private readonly hospitalrepository: Repository<Hospital>,
+    @InjectRepository(Pharmacy)
+    private readonly pharmacyrepository: Repository<Pharmacy>,
+    @InjectRepository(Laboratory)
+    private readonly laboratoryrepository: Repository<Laboratory>,
+    private tokenservice: TokenService,
+  ) {}
+
+  async me(userid: string): Promise<CurrentUserResponseDto> {
+    const finduser = await this.userepository.findOne({
+      where: [{ id: userid }],
+      select: ['id', 'email', 'role', 'vendor'],
+    });
+    if (!finduser) {
+      throw new HttpException('message', HttpStatus.NOT_FOUND);
     }
 
-   
+    return finduser;
+  }
 
-    async me(userid:string):Promise<CurrentUserResponseDto>{
-        const finduser = await this.userepository.findOne({where:[{id:userid}],select:['id','email','role','vendor']})
-        if (!finduser){
-            throw new HttpException('message',HttpStatus.NOT_FOUND)
+  async Signup(signupdto: CreateUserDto) {
+    const { email, password, role } = signupdto;
+    switch (role) {
+      case userRole.PATIENT:
+        await this.patient(signupdto);
+        break;
 
+      case userRole.VENDOR:
+        const user = new User();
+        user.email = email;
+        user.password = await this.tokenservice.hashpassword(password);
+        user.role = userRole.VENDOR;
+
+        const createuser = await this.userepository.save(user);
+        if (createuser) {
+          this.vendors(createuser, signupdto);
         }
+        break;
 
-        return finduser
+      default:
+        break;
     }
+  }
 
-
-    // for the sign up of users 
-
-    async Signup(signupdto:CreateUserDto){
-        const {email, password,role} = signupdto;
-        switch (role) {
-            case userRole.PATIENT:
-                await this.patient(signupdto)
-                break;
-
-            case userRole.VENDOR:
-                const user= new User();
-                user.email=email
-                user.password=await this.tokenservice.hashpassword(password)
-                user.role=userRole.VENDOR
-
-                const createuser= await this.userepository.save(user)
-                if (createuser){
-                    this.vendors(createuser, signupdto)
-                } 
-                return  createuser
-                console.log(createuser)
-                break;
-        
-            default:
-                break;
-        }
-    }
+  //function to check the email before registering he user
+  async checkuserbymail(email: string): Promise<boolean> {
+    const user = await this.userepository.findOne({
+      where: { email: email },
+      select: ['id', 'email'],
+    });
+    if (!user) {
+      return true;
+    } else false;
+  }
 
 
 
-    //function to check the email before registering he user
-    async checkuserbymail(email:string):Promise<Boolean>{
-        const user =  await this.userepository.findOne({where:{email:email},select:['id','email']})
-        if (!user){
-            return true
-        }
-        else false
-    }
+
 
 
 
@@ -302,6 +315,7 @@ async updateLab(updatelabdto:LaboratoryUpdateDto, userid:string){
     }
     return user
 }
+
 
 
 
